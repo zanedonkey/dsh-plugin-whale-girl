@@ -1,0 +1,11 @@
+Use case: illustration-story
+Asset type: transparent desktop pet animation spritesheet, FOUR frames in a strict 2x2 grid on a square canvas.
+Input image: character identity reference, preserve the same chibi whale girl, blue-to-cyan long hair, blue eyes, ahoge, white ruffled maid headband with blue bow, navy maid dress, whale motif white apron, white stockings, navy shoes, large navy whale tail.
+Primary request: she squats down on the ground and eats plain white rice from a bowl she holds. This is one continuous eating loop with four distinct drawings read left to right, top to bottom.
+All four poses: visibly low full squat with both knees bent and feet on the ground, body close to heels, tail curved along the floor behind her to the right. Left hand holds a white ceramic rice bowl at chest level; right hand uses chopsticks. No chair, table, stool, or standing pose. Dress and apron remain modest and accurate.
+Frame 1: eyes open, chopsticks dipping into bowl to pick up white rice.
+Frame 2: eyes open, lifts a small bite of rice toward open mouth.
+Frame 3: eating rice, chopsticks at mouth, happy gently closed eyes.
+Frame 4: gently chewing with a small content smile, lowers chopsticks back to bowl, connecting back to frame 1.
+Style: clean soft anime chibi cel illustration, matching the reference, smooth outlines and delicate shading, high clarity at tiny pet size.
+Layout: four equal square cells, no visible grid lines. Same character size, camera, body alignment, bowl position and feet baseline in every cell. Each complete figure including ahoge, hair, chopsticks, shoes and whale tail must fit in the CENTRAL 72% of its cell, with at least 12% completely transparent padding on ALL four sides. Do not crop or overlap cells. Truly transparent alpha background, no floor plane, no shadow, no checkerboard drawn into image, no text, no decorations or additional objects.

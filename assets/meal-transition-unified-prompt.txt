@@ -1,0 +1,24 @@
+Use case: illustration-story
+Transparent desktop pet transition spritesheet, exactly 16 complete drawings, strict equal 4x4 square grid.
+Two approved endpoints: Image 1 is the NEW standing idle girl, first cell; Image 2 is the approved squatting eating girl, first cell. Image 2 is the STYLE MASTER. Draw the SAME exact girl through all frames. Match Image 2's face shape, round detailed blue irises, lash shape, soft rosy cheeks, small mouth, eye spacing, forehead, hair palette/highlights, line weight, soft fabric shading and maid ruffle detail. No simplified flatter cartoon. Image 1 supplies the empty-handed standing posture only. Keep the white apron plain as in Image 1 unless hidden by the rice bowl.
+Fixed head size, camera, costume and palette in every frame. Blue gradient long hair, ahoge, white ruffled headband and blue bow, navy long-sleeved maid dress, white stockings and navy shoes, big navy whale tail. Left hand holds the bowl, right hand holds chopsticks when visible.
+Frames left-right/top-bottom:
+1 neutral standing, hands together over apron, EXACT pose of Image 1 first cell.
+2 looks down slightly, reaches hands toward apron.
+3 brings a white bowl of plain white rice to chest and holds chopsticks.
+4 starts bending both knees.
+5 bends knees farther, torso and head lower with feet planted.
+6 half squat, holds bowl steady.
+7 nearly full squat, closer to Image 2's first cell.
+8 full squat holding bowl, EXACT pose of Image 2 first cell.
+9 full squat holding bowl, content after eating.
+10 begins to rise, straightens knees a little.
+11 halfway up holding bowl.
+12 almost upright holding bowl.
+13 stands upright holding bowl.
+14 lowers bowl toward apron.
+15 hands empty and return together.
+16 original neutral standing, EXACT pose of Image 1 first cell.
+Body must ACTUALLY crouch and stand: same head scale throughout, standing figure taller, squat naturally shorter with more empty space ABOVE head. Feet stay on SAME baseline and horizontal center in every cell. Do not resize short poses to fill height.
+All figures, ahoge, shoes and whale tail completely INSIDE central 76% of their cell, with at least12% transparent padding on ALL sides. Blank transparent gutters. No overlapping or clipped body parts. True transparent alpha. No background, shadow, floor plane, table, chair, text, grid, heart icons or decorations.
+Soft detailed anime chibi illustration identical to the approved eating style, consistent rendering and anatomy across all cells.

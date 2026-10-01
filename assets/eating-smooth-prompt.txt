@@ -1,0 +1,23 @@
+Use case: illustration-story
+Asset: a production transparent desktop pet sprite sheet with SIXTEEN DISTINCT CONSECUTIVE frames in a STRICT equal 4 columns x 4 rows grid on a square canvas.
+Reference image is the approved four-frame eating sprite sheet. Preserve this EXACT character identity, costume and squatting pose: chibi blue long-haired whale maid girl, blue eyes, white ruffled headband, navy maid dress, white apron, white stockings, navy shoes, large dark blue whale tail to her right. Squatting low on the ground with knees bent, both feet together on the ground, left hand holds a bowl of WHITE RICE, right hand uses wooden chopsticks.
+Generate a smooth single eating cycle with sixteen subtle intermediate drawings, NOT sixteen repeats of the four extremes. Read frames left-to-right across each row then top-to-bottom:
+1 chopsticks in rice bowl;
+2 grip a small bite of rice;
+3 raise chopsticks just above bowl;
+4 lift halfway toward mouth;
+5 lift higher;
+6 open mouth slightly as rice approaches;
+7 rice reaches lips;
+8 bite rice, eyes gently close;
+9 withdraw empty chopsticks a little;
+10 withdraw further, mouth closes;
+11 lower chopsticks slightly, cheeks gently puff with chewing;
+12 lower toward bowl, happy closed eyes;
+13 lower farther, eyes begin reopening;
+14 eyes open, chopsticks just above bowl;
+15 dip chopsticks into rice;
+16 return to near frame 1 pose so the final to first transition is seamless.
+Body, head, hair, bowl, feet and whale tail stay fixed in all frames with only tiny secondary motion. Fixed front camera, identical character size and center, same feet baseline. Move primarily hand/chopsticks and mouth/eyelids. Preserve the same right/left hand consistently.
+CRITICAL layout: Each figure MUST FIT COMPLETELY inside its own equal square cell, within the CENTRAL 74% of the cell. At least 13% EMPTY TRANSPARENT padding on ALL four sides of every cell. No character, ahoge, hair, chopstick, feet or tail may cross a cell boundary. No zoomed-in frames, no clipped heads/tails, no varying scale between rows.
+Soft clean anime chibi cel illustration matching reference, readable at small sizes. True transparent alpha background. No visible grid, no text, no labels, no shadows, no decorations, no extra hands/limbs, no table or chair.

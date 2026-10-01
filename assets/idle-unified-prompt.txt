@@ -1,0 +1,24 @@
+Use case: illustration-story
+Asset: transparent 4x4 idle spritesheet with 16 animation frames.
+SINGLE STYLE MASTER: the attached approved rice-eating whale girl spritesheet. It defines the EXACT character AND rendering style. Make the standing version look like the SAME drawn girl from that sheet, not a new interpretation. Preserve her face oval, chin, small mouth, round blue irises and upper eyelash shape, gradient highlights inside the eyes, soft blush, forehead-to-eyes spacing, blue hair palette and highlights, hair strand shapes, side fins, headband ruffles, line weight, navy costume colors, fabric shading and frill details. Match its softer detailed shading and outlines. Do not use a flatter simplified cartoon style. Do not broaden the face or make the eyes smaller, narrower or oval. Head size is consistent across all cells.
+Only change pose from squatting with bowl to STANDING empty-handed in the same navy maid dress, white whale-motif apron, white stockings/navy shoes and large navy whale tail. Same body proportions interpreted standing, same hair length and costume.
+Sixteen cells left-to-right/top-to-bottom:
+1 neutral standing hands together over apron, gentle smile
+2 eyelids half down
+3 closed eyes blinking
+4 eyes reopen
+5 glance left and tiny head turn
+6 gentle curious head tilt left
+7 return toward center
+8 neutral front standing
+9 glance right and tiny head turn
+10 gentle curious head tilt right
+11 return toward center
+12 neutral front standing
+13 raise right hand slightly near shoulder for a friendly small wave
+14 small wave outward, smile
+15 wave inward, smile
+16 hand back to neutral pose
+Tiny tail sway allowed, no dance or bounce. Feet and torso stay anchored, changes are gentle. All frames full-body, identical scale, camera and feet baseline. Strict equal 4 columns x4 rows square grid on square canvas.
+Layout must have FULL figures including ahoge, headband, fingertips, tail and shoes inside the CENTRAL 76% of each cell; 12% empty transparent padding each side. No overlap or crop. True transparent background. No food, bowl, chopsticks, laptop, text, visible grid, background, floor, shadow, hearts, or extra objects.
+Style fidelity to the ONE attached style master takes precedence over creative redesign.
