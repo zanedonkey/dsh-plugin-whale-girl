@@ -115,9 +115,11 @@ for (const language of ['en', 'zh']) {
     assert.equal(widget.panel.hidden, true);
     widget.button.dispatch('click');
     assert.equal(widget.panel.hidden, false);
+    assert.equal(widget.pet.dataset.panelOpen, 'true');
     assert.equal(widget.root.querySelector('.close'), widget.host.ownerDocument.activeElement);
     widget.root.dispatch('keydown', { key: 'Escape' });
     assert.equal(widget.panel.hidden, true);
+    assert.equal(widget.pet.dataset.panelOpen, undefined);
     assert.equal(widget.button, widget.host.ownerDocument.activeElement);
   });
 }
@@ -128,6 +130,22 @@ test('English and Chinese dictionaries stay consistent without diagnostic copy',
     assert.ok(value.trim()); assert.equal(translate(language, key), value);
     assert.doesNotMatch(key, /diagnostic|test|copy/i);
     assert.deepEqual(value.match(/\{\w+\}/g), MESSAGES.en[key].match(/\{\w+\}/g));
+  }
+});
+
+test('interaction phrases stay stable through redraws and language changes, then avoid repeats', t => {
+  let now = 1000;
+  const { widget: w } = fixture(t, 'zh', () => now);
+  w.update({ available: true, sessionId: 'phrases', running: false });
+  for (const kind of ['eating', 'headpat']) {
+    w.interact(kind);
+    const first = w.interaction.messageKey;
+    for (let i = 0; i < 3; i++) { now += 100; w.paint(); assert.equal(w.interaction.messageKey, first); }
+    w.setLanguage('en'); assert.equal(w.interaction.messageKey, first);
+    assert.equal(w.bubbleText.textContent, translate('en', first));
+    now = w.interaction.until + 1; w.paint();
+    w.interact(kind); assert.notEqual(w.interaction.messageKey, first);
+    now = w.interaction.until + 1; w.paint();
   }
 });
 
@@ -187,7 +205,8 @@ test('head hold fires at 700 ms and release does not also trigger a click gestur
   w.button.dispatch('pointerdown', { button: 0, isPrimary: true, pointerId: 1, clientX: 70, clientY: 40 });
   t.mock.timers.tick(699); assert.equal(w.interaction, null);
   t.mock.timers.tick(1); assert.equal(w.interaction.kind, 'headpat');
-  assert.match(w.bubbleText.textContent, /head|more|tail/);
+  assert.match(w.interaction.messageKey, /^interaction\.headpat\./);
+  assert.equal(w.bubbleText.textContent, translate('en', w.interaction.messageKey));
   w.button.dispatch('pointerup', { pointerId: 1 });
   w.button.dispatch('click', { detail: 1 }); assert.equal(w.interaction.kind, 'headpat');
 });
@@ -244,7 +263,8 @@ test('click uses the rice atlas for three full cycles and restores the resting a
   w.assets.animation = 'regular-frames.png'; w.assets.eating = 'rice-frames.png';
   w.button.dispatch('click', { detail: 1 });
   assert.equal(w.image.src, 'rice-frames.png'); assert.equal(w.pet.dataset.clip, 'eating');
-  assert.match(w.bubbleText.textContent, /饭|饱/);
+  assert.match(w.interaction.messageKey, /^interaction\.eating\./);
+  assert.equal(w.bubbleText.textContent, translate('zh', w.interaction.messageKey));
   now = 1720; w.renderAnimation(); assert.equal(w.pet.dataset.frame, '7');
   const rice = animationFrame('eating', 720).rect;
   assert.equal(w.image.style.top, `${-rice[1] / rice[3] * 100}%`);
@@ -279,10 +299,11 @@ test('idle to meal plays registered preparation, eating, recovery and idle witho
   Object.assign(w.assets, { animation: 'old.png', idle: 'idle.png', transition: 'transition.png', eating: 'rice.png' });
   w.renderAnimation(); assert.equal(w.image.src, 'idle.png');
   w.button.dispatch('click', { detail: 1 });
-  assert.equal(w.pet.dataset.clip, 'eatingDown'); assert.equal(w.image.src, 'transition.png');
+  assert.equal(w.pet.dataset.clip, 'eatingDown'); assert.equal(w.image.src, 'idle.png');
   assert.equal(w.nextImage.style.opacity, '0'); assert.equal(w.image.style.opacity, '1');
   now = 1090; w.renderAnimation(); assert.equal(w.nextImage.style.opacity, '0');
-  now = 1200; w.renderAnimation(); assert.equal(w.image.src, 'transition.png');
+  now = 1200; w.renderAnimation(); assert.equal(w.image.src, 'idle.png');
+  now = 1250; w.renderAnimation(); assert.equal(w.image.src, 'transition.png');
   now = 1900; w.renderAnimation(); assert.equal(w.pet.dataset.clip, 'eating');
   assert.equal(w.image.src, 'rice.png');
   now = 2110; w.renderAnimation(); assert.equal(w.image.src, 'rice.png');

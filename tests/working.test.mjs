@@ -92,7 +92,7 @@ test('new selected session and reconnect initialize their own busy display', () 
 test('language changes translate the same working key without rerolling', () => {
   let draws = 0;const machine = make(() => { draws++; return 0.3; });
   const view = machine.update(base, 0);
-  assert.equal(translate('zh', view.messageKey), '开工啦！');
-  assert.equal(translate('en', view.messageKey), 'Whale girl on the job!');
+  assert.equal(translate('zh', view.messageKey), '开工开工！饭碗先在旁边候场～');
+  assert.equal(translate('en', view.messageKey), 'Brain on! Rice bowl on standby.');
   assert.equal(machine.view(1).messageKey, view.messageKey);assert.equal(draws, 1);
 });

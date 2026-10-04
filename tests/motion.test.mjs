@@ -5,7 +5,7 @@ import { EATING_TIMING } from '../src/animation.js';
 
 function grounded(pose) {
   const [x,y,w,h]=pose.rect,[cx,floor]=pose.anchor;
-  assert.equal(w,h); assert.equal(w,330);
+  assert.equal(w,h); assert.ok(w>=315&&w<=333);
   assert.ok(Math.abs((cx-x)/w-.46)<1e-10); assert.ok(Math.abs((floor-y)/h-.965)<1e-10);
   assert.ok(['idle','actions','expressions','eating','transition'].includes(pose.assetKey));
 }

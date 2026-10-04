@@ -14,7 +14,7 @@ test('five distinct completion phrases exist in both languages', () => {
     assert.ok(phrases.every(value => typeof value === 'string' && value.length > 0));
     assert.equal(new Set(phrases).size, 5);
   }
-  assert.equal(translate('zh', CELEBRATION_KEYS[0]), '刚刚完成了一个任务！');
+  assert.equal(translate('zh', CELEBRATION_KEYS[0]), '任务完成！尾巴申请原地庆祝！');
 });
 test('each phrase is reachable on the first random draw', () => {
   for (let index = 0; index < CELEBRATION_KEYS.length; index++) {
@@ -84,7 +84,7 @@ test('a live reply celebration survives immediate continuation and a new run id'
 test('locale changes translate the same completion key without drawing again', () => {
   let draws = 0;const machine = new PetStateMachine(0, 120000, () => { draws++; return 0; });
   const view = finish(machine, 1);
-  assert.equal(translate('zh', view.messageKey), '刚刚完成了一个任务！');
-  assert.equal(translate('en', view.messageKey), 'Just finished a task!');
+  assert.equal(translate('zh', view.messageKey), '任务完成！尾巴申请原地庆祝！');
+  assert.equal(translate('en', view.messageKey), 'Task done! Victory wiggle!');
   assert.equal(machine.view(2).messageKey, view.messageKey);assert.equal(draws, 1);
 });

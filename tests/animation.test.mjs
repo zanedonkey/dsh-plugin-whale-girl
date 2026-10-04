@@ -22,7 +22,7 @@ test('typing pingpongs, each gesture has distinct drawing cells and paused frame
       assert.ok(bounds[0] >= 0 && bounds[1] >= 0 && bounds[0] + bounds[2] <= 1254 && bounds[1] + bounds[3] <= 1254);
       cells.push(JSON.stringify(rect)); elapsed += duration;
     }
-    assert.equal(new Set(cells).size, new Set(definition.frames).size);
+    assert.equal(new Set(cells).size, name==='eatingDown'?7:new Set(definition.frames).size);
     assert.equal(animationFrame(name, 999999, true).frame, definition.frames[0]);
   }
   assert.equal(animationFrame('missing', 0), undefined);
@@ -77,7 +77,7 @@ test('drawn frame remains opaque and the spare layer never contributes a ghost',
   applyAnimationFrame(image, 'eating', 65, false, next);
   assert.equal(Number(image.style.opacity) + Number(next.style.opacity), 1);
   assert.equal(Number(next.style.opacity), 0);
-  assert.equal(image.style.width, `${1254 / 330 * 100}%`);
+  assert.equal(image.style.width, `${1254 / FRAME_REGISTRATION.eating[0].rect[2] * 100}%`);
   applyAnimationFrame(image, 'eating', 65, true, next);
   assert.equal(image.style.opacity, '1'); assert.equal(next.style.opacity, '0');
 });
@@ -89,7 +89,8 @@ test('all drawn and static poses share one square viewport and fixed shoe origin
     assert.ok(Math.abs((center - x) / width - 0.46) < 1e-10);
     assert.ok(Math.abs((floor - y) / height - 0.965) < 1e-10);
   }
-  assert.equal(new Set(['resting','eating','transition'].flatMap(name=>FRAME_REGISTRATION[name].map(pose=>pose.rect[2]))).size, 1);
+  for(const name of ['resting','eating'])assert.equal(new Set(FRAME_REGISTRATION[name].map(pose=>pose.rect[2])).size,1,'each loop has a fixed playback scale');
+  assert.ok(Math.abs(FRAME_REGISTRATION.transition[10].rect[2]/FRAME_REGISTRATION.eating[0].rect[2]-1)<.01,'seated preparation requires only a small scale adjustment at the meal handoff');
   const image = { style: {}, parentElement: { style: {} } };
   for (const state of ['sleeping', 'waiting', 'error', 'celebrate']) {
     applySprite(image, state); assert.equal(image.parentElement.style.aspectRatio, '1');

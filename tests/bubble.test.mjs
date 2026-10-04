@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { acquireBubbleFonts } from '../src/fonts.js';
-import { bubbleLayout } from '../src/bubble-layout.js';
+import { bubbleLayout, panelLayout } from '../src/bubble-layout.js';
 import { MESSAGES } from '../src/i18n.js';
 import fs from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -14,7 +14,7 @@ test('font metadata matches binaries and covers every current bilingual bubble p
     assert.equal(createHash('sha256').update(bytes).digest('hex'), font.sha256);
   }
   for (const dictionary of Object.values(MESSAGES)) for (const [key, text] of Object.entries(dictionary)) {
-    if (!/^(state|working|celebrate|error)\./.test(key) && key !== 'pet.greeting') continue;
+    if (!/^(state|working|celebrate|error|interaction)\./.test(key) && key !== 'pet.greeting') continue;
     for (const character of text) assert.ok(covered.has(character.codePointAt(0)), `${key}: missing embedded glyph ${character}; regenerate bubble fonts`);
   }
 });
@@ -74,4 +74,33 @@ test('long translated bubble and narrow viewport remain visible', () => {
   const layout = bubbleLayout(input);
   assert.ok(layout.left >= 12 && layout.left + input.width <= 188);
   assert.ok(layout.top >= 12 && layout.top + input.height <= 238);
+});
+
+test('settings stay beside the pet at top, bottom, and middle positions', () => {
+  const cases = [
+    { x: 12, y: 56, size: 199.5, width: 280, height: 310, viewportWidth: 1280, viewportHeight: 800, side: 'below' },
+    { x: 944, y: 512, size: 199.5, width: 280, height: 310, viewportWidth: 1280, viewportHeight: 800, side: 'above' },
+    { x: 12, y: 56, size: 304, width: 280, height: 310, viewportWidth: 1280, viewportHeight: 800, side: 'below' },
+    { x: 12, y: 210, size: 199.5, width: 280, height: 310, viewportWidth: 1280, viewportHeight: 650, side: 'right' },
+    { x: 1040, y: 210, size: 199.5, width: 280, height: 310, viewportWidth: 1280, viewportHeight: 650, side: 'left' },
+  ];
+  for (const input of cases) {
+    const panel = panelLayout(input);
+    assert.equal(panel.side, input.side);
+    assert.ok(panel.left + input.width <= input.x || panel.left >= input.x + input.size
+      || panel.top + input.height <= input.y || panel.top >= input.y + input.size);
+    assert.ok(panel.left >= 12 && panel.top >= 56);
+    assert.ok(panel.left + input.width <= input.viewportWidth - 12 && panel.top + input.height <= input.viewportHeight - 12);
+  }
+});
+
+test('settings clamp in small windows and respect the live titlebar clearance', () => {
+  for (const input of [
+    { x: 12, y: 56, size: 304, width: 280, height: 310, viewportWidth: 360, viewportHeight: 480 },
+    { x: 12, y: 120, size: 199.5, width: 280, height: 310, viewportWidth: 800, viewportHeight: 480, topClearance: 120 },
+  ]) {
+    const panel = panelLayout(input);
+    assert.ok(panel.left >= 12 && panel.left + input.width <= input.viewportWidth - 12);
+    assert.ok(panel.top >= (input.topClearance || 56) && panel.top + input.height <= input.viewportHeight - 12);
+  }
 });

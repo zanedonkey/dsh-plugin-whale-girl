@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
-import { MESSAGES, normalizeLanguage, translate } from '../src/i18n.js';
+import { MESSAGES, normalizeLanguage, translate, INTERACTION_KEYS, chooseInteractionKey } from '../src/i18n.js';
 import { readDshLanguage, observeDshLanguage } from '../src/adapter.js';
 
 for (const [input, expected] of [['zh','zh'], ['zh-CN','zh'], ['ZH_hans','zh'], ['zh-TW','zh'], ['en-US','en'], ['ja','en'], ['fr','en'], [undefined,'en'], [null,'en'], ['', 'en']]) {
@@ -18,6 +18,20 @@ test('translation interpolation and fallback are literal text, not HTML', () => 
   assert.match(translate('en','pet.aria',{ status:'Working on it…' }), /^Working on it… Click/);
   assert.equal(translate('de','state.waiting'), 'A little help?');
   assert.equal(translate('en','missing.key'), 'missing.key');
+});
+
+test('every interaction line is reachable and consecutive picks avoid the last line', () => {
+  for (const kind of ['eating', 'headpat']) {
+    const keys = INTERACTION_KEYS[kind];
+    assert.equal(keys.length, 6);
+    const seen = new Set(keys.map((_, index) => chooseInteractionKey(kind, undefined, () => (index + .5) / keys.length)));
+    assert.deepEqual([...seen], keys);
+    for (const previous of keys) for (const draw of [0, .25, .5, .75, 1]) {
+      const next = chooseInteractionKey(kind, previous, () => draw);
+      assert.notEqual(next, previous);
+      for (const lang of ['zh', 'en']) assert.ok(MESSAGES[lang][next]);
+    }
+  }
 });
 test('DSH resolved active is read, never the preference or browser fallback', () => {
   assert.equal(readDshLanguage({ getSnapshot: () => ({ active:'zh', preference:'en', locales:[], revision:0 }) }), 'zh');

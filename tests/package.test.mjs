@@ -18,7 +18,7 @@ test('package is a self-contained DSH bundle with only its own inserted row', ()
   for (const hook of ['preinstall', 'install', 'postinstall', 'prepare', 'prepack', 'postpack']) {
     assert.equal(manifest.scripts[hook], undefined);
   }
-  assert.equal(manifest.version, '0.5.0');
+  assert.equal(manifest.version, '0.5.5');
   assert.equal(fs.existsSync(path.join(root, 'lib/version.js')), false);
   assert.equal(manifest.files.includes('DIAGNOSTICS.md'), false);
   assert.equal(manifest.private, true);
