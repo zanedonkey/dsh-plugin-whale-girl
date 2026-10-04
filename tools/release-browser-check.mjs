@@ -69,12 +69,21 @@ try {
   assert.equal((await evaluate(`document.querySelector('.version').textContent`)).trim(), `DSH PLUGIN / ${version}`, 'Preview must match current package version');
   assert.equal(await evaluate(`location.protocol`), 'file:');
   assert.equal(await evaluate(`previewPet.panel.hidden`), true);
+  const bubbleStyles = await evaluate(`(()=>{const w=previewPet,originalView=w.machine.view,interaction=w.interaction,samples=[];try{for(const action of ['resting','working','waiting','celebrate','error','sleeping','eating','headpat']){w.machine.view=()=>({state:['eating','headpat'].includes(action)?'resting':action,available:true,messageKey:'state.'+(['eating','headpat'].includes(action)?'resting':action),workingCount:action==='working'?1:0});w.interaction=['eating','headpat'].includes(action)?{kind:action,started:w.now(),until:w.now()+10000,messageKey:'interaction.'+action+'.0'}:null;w.paint();const text=getComputedStyle(w.bubbleText),box=getComputedStyle(w.bubble),surface=getComputedStyle(w.bubbleSurface.path);samples.push({action,font:text.fontFamily,size:text.fontSize,weight:text.fontWeight,lineHeight:text.lineHeight,spacing:text.letterSpacing,padding:box.padding,radius:box.borderRadius,fill:surface.fill,stroke:surface.stroke});}return samples;}finally{w.machine.view=originalView;w.interaction=interaction;w.motionDirector.reset();w.paint();}})()`);
+  for (const {action,...style} of bubbleStyles) {
+    assert.deepEqual(style,Object.fromEntries(Object.entries(bubbleStyles[0]).filter(([key])=>key!=='action')), action+' bubble style must match idle');
+    assert.match(style.font,/Whale Bubble Latin/);assert.match(style.font,/Whale Bubble Han/);
+  }
+  assert.equal(await evaluate(`document.fonts.check('400 15px "Whale Bubble Han"')&&document.fonts.check('500 15px "Whale Bubble Latin"')`),true);
   await evaluate(`Promise.all(Array.from(document.images, image => image.decode()))`);
   const layout = await page('Page.getLayoutMetrics');
   const overview = await page('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true,
     clip: { x: 0, y: 0, width: layout.cssContentSize.width, height: layout.cssContentSize.height, scale: 1 } });
   fs.mkdirSync(path.join(root, 'artifacts'), { recursive: true });
   fs.writeFileSync(path.join(root, 'artifacts/preview-overview.png'), Buffer.from(overview.data, 'base64'));
+  const styleBounds=await evaluate(`(()=>{const r=document.querySelector('.style-review').getBoundingClientRect();return {x:r.x+scrollX,y:r.y+scrollY,width:r.width,height:r.height,scale:1};})()`);
+  const styleShot=await page('Page.captureScreenshot',{format:'png',captureBeyondViewport:true,clip:styleBounds});
+  fs.writeFileSync(path.join(root,`artifacts/style-review-${version.replaceAll('.','')}.png`),Buffer.from(styleShot.data,'base64'));
   const storyBounds = await evaluate(`(()=>{const r=document.querySelector('.meal-story').getBoundingClientRect();return {x:r.x+scrollX,y:r.y+scrollY,width:r.width,height:r.height,scale:1};})()`);
   const storyShot = await page('Page.captureScreenshot', { format:'png', captureBeyondViewport:true, clip:storyBounds });
   fs.writeFileSync(path.join(root, `artifacts/style-and-motion-${version.replaceAll('.','')}.png`), Buffer.from(storyShot.data,'base64'));
@@ -94,8 +103,8 @@ try {
     assert.equal(await evaluate(`previewPet.pet.dataset.state`), state);
     assert.equal(await evaluate(`previewPet.countOverlay.hasAttribute('hidden')`), state !== 'working');
     assert.ok(await evaluate(`previewPet.button.getAttribute('aria-label').length > 0`));
-    const bounds = await evaluate(`previewPet.motionDirector.lastPose.rect`);
-    const crop = await evaluate(`({left:parseFloat(previewPet.image.style.left),top:parseFloat(previewPet.image.style.top),width:parseFloat(previewPet.image.style.width),height:parseFloat(previewPet.image.style.height)})`);
+    // Sample the pose and DOM together so an animation frame cannot advance between reads.
+    const { bounds, crop } = await evaluate(`(()=>{const style=previewPet.image.style;return {bounds:previewPet.motionDirector.lastPose.rect,crop:{left:parseFloat(style.left),top:parseFloat(style.top),width:parseFloat(style.width),height:parseFloat(style.height)}}})()`);
     for (const [key, expected] of Object.entries({top:-bounds[1]/bounds[3]*100,width:1254/bounds[2]*100,height:1254/bounds[3]*100})) assert.ok(Math.abs(crop[key]-expected)<0.001, `${state} crop ${key}`);
     if (!['resting','working'].includes(state)) assert.ok(Math.abs(crop.left + bounds[0]/bounds[2]*100)<0.001);
     assert.equal(await evaluate(`getComputedStyle(previewPet.image.parentElement).aspectRatio`), '1 / 1');
@@ -175,8 +184,11 @@ try {
   await evaluate(`previewPet.now=savedPetNow`);
   // Check actual CSS geometry on both sides of every action boundary,
   // including removal of the resting CSS animation when clicking to eat.
-  const sequenceGeometry = await evaluate(`(()=>{const saved=previewPet.now,start=saved(),samples=[];previewPet.motionDirector.reset();previewPet.interaction={kind:'eating',started:start,until:start+WhalePet.EATING_TIMING.total};for(const elapsed of [0,65,120,450,899,900,965,1699,5699,5700,5765,6000,6399,6400,6480,6700]){previewPet.now=()=>start+elapsed;previewPet.renderAnimation();const clip=previewPet.pet.dataset.clip,frame=Number(previewPet.pet.dataset.frame),pose=previewPet.motionDirector.lastPose,r=previewPet.image.parentElement.getBoundingClientRect(),style=previewPet.image.style;samples.push({clip,viewport:[r.x,r.y,r.width,r.height],shoe:[r.x+parseFloat(style.left)/100*r.width+pose.anchor[0]*parseFloat(style.width)/100*r.width/1254,r.y+parseFloat(style.top)/100*r.height+pose.anchor[1]*parseFloat(style.height)/100*r.height/1254],transform:getComputedStyle(previewPet.image.parentElement).transform,opacity:[Number(style.opacity),Number(previewPet.nextImage.style.opacity)]});}previewPet.now=saved;previewPet.interaction=null;previewPet.paint();return samples;})()`);
+  const sequenceGeometry = await evaluate(`(()=>{const saved=previewPet.now,start=saved(),samples=[];previewPet.motionDirector.reset();previewPet.interaction={kind:'eating',started:start,until:start+WhalePet.EATING_TIMING.total};for(const elapsed of [0,65,120,450,899,900,965,1699,5699,5700,5765,6000,6399,6400,6480,6700]){previewPet.now=()=>start+elapsed;previewPet.renderAnimation();const clip=previewPet.pet.dataset.clip,frame=Number(previewPet.pet.dataset.frame),pose=previewPet.motionDirector.lastPose,r=previewPet.image.parentElement.getBoundingClientRect(),style=previewPet.image.style;samples.push({clip,elapsed,sourceCorrect:previewPet.image.src===WhalePet.assets[pose.assetKey],assetKey:pose.assetKey,sourceFrame:pose.sourceFrame??pose.frame,rect:pose.rect,viewport:[r.x,r.y,r.width,r.height],shoe:[r.x+parseFloat(style.left)/100*r.width+pose.anchor[0]*parseFloat(style.width)/100*r.width/1254,r.y+parseFloat(style.top)/100*r.height+pose.anchor[1]*parseFloat(style.height)/100*r.height/1254],transform:getComputedStyle(previewPet.image.parentElement).transform,opacity:[Number(style.opacity),Number(previewPet.nextImage.style.opacity)]});}previewPet.now=saved;previewPet.interaction=null;previewPet.paint();return samples;})()`);
+  const handoff=sequenceGeometry.filter(sample=>[899,900,5700].includes(sample.elapsed));
+  assert.equal(handoff.length,3);for(const sample of handoff){assert.equal(sample.assetKey,'eating');assert.equal(sample.sourceFrame,0);assert.deepEqual(sample.rect,handoff[0].rect);}
   for (const sample of sequenceGeometry) {
+    assert.equal(sample.sourceCorrect,true,'each crop must display its matching source atlas');
     assert.equal(sample.transform, 'none'); assert.deepEqual(sample.opacity, [1,0]);
     for (let axis=0;axis<4;axis++) assert.ok(Math.abs(sample.viewport[axis]-sequenceGeometry[0].viewport[axis])<0.01, 'art viewport must stay fixed through complete action');
     for (let axis=0;axis<2;axis++) assert.ok(Math.abs(sample.shoe[axis]-sequenceGeometry[0].shoe[axis])<0.01, 'shoe origin must stay fixed through complete action');
@@ -198,7 +210,7 @@ try {
   assert.equal(matrixCheck.pairs,56); console.log(JSON.stringify({transitionMatrix:matrixCheck}));
   const transitionBox = await evaluate(`(()=>{const r=document.querySelector('.all-transitions').getBoundingClientRect();return {x:r.x+scrollX,y:r.y+scrollY,width:r.width,height:r.height,scale:1};})()`);
   const transitionShot=await page('Page.captureScreenshot',{format:'png',captureBeyondViewport:true,clip:transitionBox});
-  fs.writeFileSync(path.join(root,'artifacts/all-transitions-050.png'),Buffer.from(transitionShot.data,'base64'));
+  fs.writeFileSync(path.join(root,`artifacts/all-transitions-${version.replaceAll('.','')}.png`),Buffer.from(transitionShot.data,'base64'));
 
   // Exercise normal keyboard, context-menu and settings actions, without special runtime APIs.
   await page('Page.bringToFront');
@@ -237,6 +249,8 @@ try {
     assert.ok(geometry.left >= 0 && geometry.top >= 0 && geometry.right <= geometry.width && geometry.bottom <= geometry.height, JSON.stringify(geometry));
     assert.equal(geometry.scroll, 'auto');
   };
+  const settingsPlacement = await evaluate(`(()=>{const w=previewPet,saved={x:w.preferences.x,y:w.preferences.y,scale:w.preferences.scale},checks=[];try{for(const scale of [.65,1.05,1.6])for(const [x,y] of [[12,56],[innerWidth-190*scale-12,56],[12,innerHeight-190*scale-12],[innerWidth-190*scale-12,innerHeight-190*scale-12]]){Object.assign(w.preferences,{x,y,scale});w.applyPreferences();w.openPanel();const p=w.panel.getBoundingClientRect(),pet=w.pet.getBoundingClientRect();if(p.left<12-.01||p.top<56-.01||p.right>innerWidth-12+.01||p.bottom>innerHeight-12+.01)throw Error('panel outside viewport');if(!(p.right<=pet.left||p.left>=pet.right||p.bottom<=pet.top||p.top>=pet.bottom))throw Error('settings cover pet');if(getComputedStyle(w.bubble).visibility!=='hidden'||getComputedStyle(w.bubble).opacity!=='0')throw Error('settings must hide speech');w.closePanel(false);if(w.pet.dataset.panelOpen!==undefined||getComputedStyle(w.bubble).visibility==='hidden')throw Error('speech not restored');checks.push({scale,x,y});}return {positions:checks.length,visiblePet:true,hiddenSpeechWhileOpen:true};}finally{Object.assign(w.preferences,saved);w.applyPreferences();w.openPanel();}})()`);
+  console.log(JSON.stringify({settingsPlacement}));
   for (const [language, dark] of [['zh', false], ['en', true]]) {
     await page('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: dark ? 'dark' : 'light' }] });
     await evaluate(`document.body.classList.toggle('dark',${dark});document.documentElement.style.colorScheme=${JSON.stringify(dark ? 'dark' : 'light')};previewPet.setLanguage(${JSON.stringify(language)});previewPet.openPanel();`);

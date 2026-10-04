@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = p => fs.readFileSync(path.join(root, p), 'utf8');
 const { version } = JSON.parse(read('package.json'));
+const activeAtlases = JSON.parse(read('assets/active-atlases.json'));
 // Independently authored geometric preview stand-in, not copied from DSH artwork.
 // Production continues to render the official icon supplied by the live host.
 const previewChevron = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden="true"><path d="M 4 6 L 8 10 L 12 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -14,11 +15,11 @@ const spriteAtlas = `data:image/png;base64,${png.toString('base64')}`;
 const animationPng = fs.readFileSync(path.join(root, 'assets/whale-girl-animation.png'));
 if (animationPng.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a' || animationPng.readUInt32BE(16) !== 1254 || animationPng.readUInt32BE(20) !== 1254 || animationPng[25] !== 6) throw Error('Expected the reviewed transparent animation atlas');
 const animationAtlas = `data:image/png;base64,${animationPng.toString('base64')}`;
-const eatingPng = fs.readFileSync(path.join(root, 'assets/whale-girl-eating-smooth.png'));
+const eatingPng = fs.readFileSync(path.join(root, `assets/${activeAtlases.eating}`));
 if (eatingPng.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a' || eatingPng.readUInt32BE(16) !== 1254 || eatingPng.readUInt32BE(20) !== 1254 || eatingPng[25] !== 6) throw Error('Expected the reviewed 1254×1254 RGBA eating atlas');
 const eatingAtlas = `data:image/png;base64,${eatingPng.toString('base64')}`;
 const actionAtlases = {};
-for (const [key, filename] of Object.entries({ idle: 'whale-girl-idle-unified.png', transition: 'whale-girl-meal-transition-unified.png', actions: 'whale-girl-actions-050.png', expressions: 'whale-girl-expressions-050.png' })) {
+for (const [key, filename] of Object.entries(activeAtlases).filter(([key]) => key !== 'eating')) {
   const bytes = fs.readFileSync(path.join(root, `assets/${filename}`));
   if (bytes.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a' || bytes.readUInt32BE(16) !== 1254 || bytes.readUInt32BE(20) !== 1254 || bytes[25] !== 6) throw Error(`Unexpected action atlas: ${filename}`);
   actionAtlases[key] = `data:image/png;base64,${bytes.toString('base64')}`;
