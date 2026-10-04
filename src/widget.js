@@ -1,7 +1,7 @@
 import { PetStateMachine, cleanPreferences, clampPosition, STORAGE_KEY } from './state.js';
-import { normalizeLanguage, translate } from './i18n.js';
+import { normalizeLanguage, translate, chooseInteractionKey } from './i18n.js';
 import { acquireBubbleFonts } from './fonts.js';
-import { bubbleLayout } from './bubble-layout.js';
+import { bubbleLayout, panelLayout } from './bubble-layout.js';
 import { attachBubbleSurface } from './bubble-surface.js';
 import { applySprite } from './sprites.js';
 import { animationFrame, applyAnimationPose, eatingStage, EATING_TIMING, RESTING_AFTER_MEAL_PHASE } from './animation.js';
@@ -18,6 +18,7 @@ export class WhaleWidget {
     this.onScopeChange = onScopeChange;
     this.assets = assets;
     this.interaction = null;
+    this.lastInteractionMessages = {};
     this.motionDirector = new MotionDirector();
     this.holdTimer = null;
     this.animationStarted = now();
@@ -247,13 +248,14 @@ export class WhaleWidget {
     const size = 190 * this.preferences.scale;
     const width = this.panel.offsetWidth || Math.min(280, window.innerWidth - 24);
     const height = this.panel.offsetHeight || 310;
-    const position = clampPosition(this.position.x + size / 2 - width / 2,
-      this.position.y - height - 12, width, height, window.innerWidth, window.innerHeight);
-    this.panel.style.left = `${position.x}px`; this.panel.style.top = `${position.y}px`;
+    const position = panelLayout({ ...this.position, size, width, height, viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight, topClearance: Math.max(56, parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--dsh-frame-top-clearance')) || 0) });
+    this.panel.style.left = `${position.left}px`; this.panel.style.top = `${position.top}px`;
   }
-  openPanel() { this.panel.hidden = false; this.positionPanel(); this.root.querySelector('.close').focus(); }
+  openPanel() { this.panel.hidden = false; this.pet.dataset.panelOpen = 'true'; this.positionPanel(); this.root.querySelector('.close').focus(); }
   closePanel(focus = true) {
     this.panel.hidden = true;
+    delete this.pet.dataset.panelOpen;
     if (focus) this.button.focus();
   }
   pointerDown(e) {
@@ -306,8 +308,10 @@ export class WhaleWidget {
     if (this.machine.view(now).state === 'resting') {
       // Repeated clicks continue the meal instead of snapping back to standing.
       if (kind === 'eating' && this.interaction?.kind === 'eating') return;
+      const messageKey = chooseInteractionKey(kind, this.lastInteractionMessages[kind]);
+      this.lastInteractionMessages[kind] = messageKey;
       this.interaction = { kind, started: now, until: now + (kind === 'eating' ? EATING_TIMING.total : 2800),
-        messageKey: `interaction.${kind}.${Math.floor(Math.random() * 3)}` };
+        messageKey };
     }
     this.paint();
   }
@@ -331,9 +335,10 @@ export class WhaleWidget {
       // than creating another pause at the transition back to idle.
       this.animationStarted = clip === 'resting' && completedMealAt !== null ? completedMealAt - RESTING_AFTER_MEAL_PHASE : now;
     }
-    const asset = clip === 'resting' ? this.assets.idle || this.assets.animation : clip === 'eating' ? this.assets.eating : stage && clip !== 'eating' ? this.assets.transition : clip ? this.assets.animation : this.assets[view.state];
+    let asset = clip === 'resting' ? this.assets.idle || this.assets.animation : clip === 'eating' ? this.assets.eating : stage && clip !== 'eating' ? this.assets.transition : clip ? this.assets.animation : this.assets[view.state];
     if (clip) {
       const sample = animationFrame(clip, stage?.elapsed ?? now - this.animationStarted, paused);
+      if(sample.assetKey)asset=this.assets[sample.assetKey]||asset;
       if (this.image.__whaleAsset !== asset) { this.image.__whaleAsset = asset; this.image.src = asset; }
       applyAnimationPose(this.image, sample.rect, sample.mask);
       this.image.style.opacity = '1'; this.nextImage.style.opacity = '0';

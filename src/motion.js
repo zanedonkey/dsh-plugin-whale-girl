@@ -1,5 +1,5 @@
 import { FRAME_REGISTRATION } from './registration.js';
-import { animationFrame, eatingStage, RESTING_AFTER_MEAL_PHASE } from './animation.js';
+import { animationFrame, eatingStage, RESTING_AFTER_MEAL_PHASE, ANIMATION_CLIPS } from './animation.js';
 
 export const MOTION_ACTIONS = Object.freeze(['resting', 'working', 'headpat', 'eating', 'waiting', 'celebrate', 'error', 'sleeping']);
 const BRANCHES = Object.freeze({
@@ -30,8 +30,10 @@ export function actionPose(action, elapsed = 0, paused = false) {
     const stage = eatingStage(elapsed, paused), sample = animationFrame(stage.clip, stage.elapsed, paused);
     const recoveryFrom = stage.clip === 'eatingUp' ? sample.frame - 8 + 1
       : stage.clip === 'eatingDown' && sample.frame <= 1 ? 8
-      : stage.clip === 'eatingDown' && sample.frame === 2 ? 4 : 0;
-    return { ...sample, assetKey: stage.clip === 'eating' ? 'eating' : 'transition', branch: recoveryFrom >= 8 ? 'resting' : action,
+      : stage.clip === 'eatingDown' && sample.frame === 2 ? 3
+      : stage.clip === 'eatingDown' && sample.frame === 3 ? 2
+      : stage.clip === 'eatingDown' && sample.frame === 4 ? 1 : 0;
+    return { ...sample, assetKey: sample.assetKey || (stage.clip === 'eating' ? 'eating' : 'transition'), branch: recoveryFrom >= 8 ? 'resting' : action,
       depth: recoveryFrom >= 8 ? 0 : 3, recoveryFrom, clip: stage.clip, needsFrame: true };
   }
   if (action === 'working' || action === 'headpat') {
@@ -48,7 +50,7 @@ function exitsFrom(pose) {
   if (!pose) return [];
   if (pose.branch === 'eating') {
     const steps = [];
-    for (let i = pose.recoveryFrom ?? 0; i < 8; i++) steps.push({ pose: { ...cel('transition', 8+i, i === 7 ? 'resting' : 'eating', i === 7 ? 0 : 3, 'eatingUp', i+1) }, duration: i === 7 ? 50 : 55 });
+    for (let i = pose.recoveryFrom ?? 0; i < 8; i++) steps.push({ pose: { ...ANIMATION_CLIPS.eatingUp.poses[8+i],frame:8+i,branch:i===7?'resting':'eating',depth:i===7?0:3,clip:'eatingUp',recoveryFrom:i+1 }, duration: i === 7 ? 50 : 55 });
     return steps;
   }
   if (!BRANCHES[pose.branch]) return [];
@@ -65,7 +67,7 @@ export function transitionRoute(from, target) {
   if (BRANCHES[target]) for (let depth=continuing ? from.depth+1 : 1;depth<=3;depth++) {
     steps.push({ pose: branchCel(target, depth), duration: target === 'sleeping' ? 110 : 75 });
   }
-  return steps.length ? [{ pose: { ...from }, duration: 30 }, ...steps] : [];
+  return steps.length || target==='eating' ? [{ pose: { ...from }, duration: 30 }, ...steps] : [];
 }
 
 /** One opaque drawing at a time. Routing uses the actually displayed pose,

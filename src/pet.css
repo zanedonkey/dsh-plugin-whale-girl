@@ -6,11 +6,11 @@
 /* Soft selector emphasis, derived from the live official palette. */
 --control-fill:light-dark(color-mix(in srgb,var(--control) 97%,var(--ink) 3%),color-mix(in srgb,var(--control) 90%,var(--ink) 10%));--control-hover:light-dark(color-mix(in srgb,var(--control) 95%,var(--ink) 5%),color-mix(in srgb,var(--control) 88%,var(--ink) 12%));--control-active:light-dark(color-mix(in srgb,var(--control) 93%,var(--ink) 7%),color-mix(in srgb,var(--control) 86%,var(--ink) 14%));--control-line:var(--dsw-alias-border-l2,light-dark(#0000001a,#ffffff1f));
 --menu-blur:var(--dsw-menu-backdrop-filter,blur(40px) saturate(150%));
---bubble-bg:light-dark(#f0f4ff,#ffffff);--bubble-ink:#394565;--bubble-line:light-dark(#dbe2ef,transparent);--bubble-shadow:light-dark(#52658d20,#0000002b)}
+--bubble-bg:#f0f4ff;--bubble-ink:#394565;--bubble-line:#dbe2ef;--bubble-shadow:light-dark(#52658d20,#0000002b)}
 *{box-sizing:border-box}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:4px}[hidden]{display:none!important}
 .pet{position:fixed;width:156px;height:156px;pointer-events:none;isolation:isolate;user-select:none;-webkit-user-select:none;transform-origin:50% 100%}
 .pet-button{all:unset;box-sizing:border-box;display:flex;align-items:flex-end;justify-content:center;width:100%;height:100%;padding:20px 9px 17px;cursor:grab;touch-action:none;pointer-events:auto;-webkit-app-region:no-drag;border-radius:28px;position:relative}
-.pet-button:active{cursor:grabbing}.pet-button:focus-visible{outline:2px dashed var(--accent);outline-offset:0}
+.pet-button:active{cursor:grabbing}.pet-button:focus-visible{outline:2px solid #8ca6d8;outline-offset:-8px}
 .pet-art{display:block;position:relative;width:100%;height:100%;pointer-events:none;transform-origin:46% 96.5%;filter:drop-shadow(0 4px 2px #253e7320);will-change:transform}
 .pet-image{display:block;position:absolute;max-width:none;object-fit:fill;pointer-events:none}
 .pet-image-next{opacity:0}
@@ -28,13 +28,14 @@
 .bubble::after{width:6px;height:6px;left:calc(var(--tail-x,40%) + 12px);bottom:-26px}
 .bubble[data-side=below]::before{top:-16px;bottom:auto}.bubble[data-side=below]::after{top:-26px;bottom:auto}
 .pet:hover .bubble,.pet:focus-within .bubble,.pet[data-notice=true] .bubble{opacity:1;translate:0 0}
+.pet[data-panel-open=true] .bubble{opacity:0;visibility:hidden;translate:0 4px}
 .pet[data-state=resting] .pet-art{animation:whale-breathe 4.2s ease-in-out infinite}.pet[data-state=working] .pet-art{animation:whale-work 2.8s ease-in-out infinite}.pet[data-state=waiting] .pet-art{animation:whale-question 2.8s ease-in-out infinite}.pet[data-state=celebrate] .pet-art{animation:whale-cheer .85s ease-in-out 5}.pet[data-state=sleeping] .pet-art{animation:whale-sleep 5.8s ease-in-out infinite}.pet[data-state=error] .pet-art{animation:whale-oops .65s ease-out 1}
 .pet[data-touch=true] .pet-art{animation:whale-hello .6s ease-in-out 2}.pet[data-dragging=true] .pet-art{animation-play-state:paused!important;rotate:-3deg}
 .pet[data-interaction] .pet-art{animation:none}
 /* Drawn clips already carry motion. Keep their shared shoe origin stationary. */
 .pet[data-clip] .pet-art{animation:none;transform:none}
 .pet[data-directed=true] .pet-art{animation:none;transform:none}
-.pet[data-interaction] .bubble-message{font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+.bubble-message{font:inherit}
 .affection{position:absolute;inset:0;display:none;pointer-events:none}.pet[data-interaction=headpat] .affection{display:block}
 .affection span{position:absolute;top:20%;left:12%;font-size:22px;color:#dc8db2;animation:whale-affection 1.3s ease-out infinite}.affection span+span{left:auto;right:12%;top:30%;animation-delay:.45s;font-size:16px}
 @keyframes whale-affection{0%{opacity:0;transform:translateY(8px) scale(.6)}30%{opacity:1}100%{opacity:0;transform:translateY(-28px) scale(1.15)}}

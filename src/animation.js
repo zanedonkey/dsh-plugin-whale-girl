@@ -7,14 +7,19 @@ export function eatingStage(elapsed, paused = false) {
   if (elapsed < EATING_TIMING.down + EATING_TIMING.meal) return { clip: 'eating', elapsed: elapsed - EATING_TIMING.down };
   return { clip: 'eatingUp', elapsed: elapsed - EATING_TIMING.down - EATING_TIMING.meal };
 }
+const mealPose=(assetKey,frame)=>({...FRAME_REGISTRATION[assetKey==='idle'?'resting':assetKey==='eating'?'eating':'transition'][frame],assetKey,sourceFrame:frame});
+// Paired poses, grounded and matched by their visible face as well as shoes.
+// The actual meal cel is the handoff on both sides: no atlas-position jump.
+const mealDown=[mealPose('idle',3),mealPose('idle',0),mealPose('transition',13),mealPose('transition',2),mealPose('transition',10),mealPose('eating',0),mealPose('eating',1),mealPose('eating',0)];
+const mealUp=[mealPose('eating',0),mealPose('transition',10),mealPose('transition',2),mealPose('transition',13),mealPose('idle',0),mealPose('idle',1),mealPose('idle',2),mealPose('idle',3)];
 export const ANIMATION_CLIPS = Object.freeze({
   resting: { poses: FRAME_REGISTRATION.resting, frames: Array.from({ length: 16 }, (_, i) => i),
     durations: [2400, 140, 120, 140, 220, 520, 220, 1800, 220, 520, 220, 1800, 180, 180, 180, 800] },
   working: { poses: FRAME_REGISTRATION.working, frames: [0, 1, 2, 3, 2, 1], durations: [260, 260, 260, 260, 260, 260] },
   headpat: { poses: FRAME_REGISTRATION.headpat, frames: [0, 1, 2, 1, 3], durations: [260, 260, 320, 260, 260] },
   eating: { poses: FRAME_REGISTRATION.eating, frames: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 10, 13, 14, 15], durations: Array(16).fill(100) },
-  eatingDown: { poses: FRAME_REGISTRATION.transition, frames: [0, 1, 2, 3, 4, 5, 6, 7], durations: [120, 100, 100, 100, 100, 100, 100, 180], once: true },
-  eatingUp: { poses: FRAME_REGISTRATION.transition, frames: [8, 9, 10, 11, 12, 13, 14, 15], durations: MEAL_RECOVERY_DURATIONS, once: true },
+  eatingDown: { poses: mealDown, frames: [0, 1, 2, 3, 4, 5, 6, 7], durations: [120, 100, 100, 100, 100, 100, 100, 180], once: true },
+  eatingUp: { poses: [...mealDown,...mealUp], frames: [8, 9, 10, 11, 12, 13, 14, 15], durations: MEAL_RECOVERY_DURATIONS, once: true },
 });
 // The last meal drawing is already standing with open eyes. Resume at the
 // matching reopened idle drawing, 80ms before its next gentle glance, instead
@@ -50,9 +55,13 @@ export function applyAnimationPose(image, rect, mask) {
     image.style.clipPath = `inset(${my / 1254 * 100}% ${(1254 - mx - mw) / 1254 * 100}% ${(1254 - my - mh) / 1254 * 100}% ${mx / 1254 * 100}%)`;
   } else image.style.clipPath = '';
 }
-export function applyAnimationFrame(image, clip, elapsed, paused = false, nextImage) {
+export function applyAnimationFrame(image, clip, elapsed, paused = false, nextImage, assets) {
   const result = animationFrame(clip, elapsed, paused);
   if (!result) return undefined;
+  if(result.assetKey&&assets){
+    const asset=assets[result.assetKey];
+    if(image.__whaleClipAsset!==asset){image.__whaleClipAsset=asset;image.src=asset;}
+  }
   applyAnimationPose(image, result.rect, result.mask);
   image.style.opacity = '1';
   if (nextImage) {
