@@ -18,3 +18,5 @@
 0.4.0 使用 `assets/whale-girl-idle-unified.png` 与 `assets/whale-girl-meal-transition-unified.png`，均以用户指定的吃饭图为基准使用内置 imagegen 生成；完整提示词见 `assets/idle-unified-prompt.txt` 与 `assets/meal-transition-unified-prompt.txt`。生成图片像素和透明通道保持原样。
 
 0.5.0 新增 `assets/whale-girl-actions-050.png` 与 `assets/whale-girl-expressions-050.png`，使用内置 imagegen 参考已批准的吃饭图、最终待机及新动作图生成，共 32 张姿态。完整提示词见 `assets/actions-050-prompt.txt` 与 `assets/expressions-050-prompt.txt`；图片像素和透明通道保持原样，运行时裁切播放。
+
+0.5.4 使用内置 imagegen 的参考图编辑模式重绘四张 `assets/*-054.png` 图集，以已批准的吃饭图为画风与角色基准。原始生成文件、参考图角色与完整提示词记录见 `assets/style-054-prompts.json`。原 PNG 像素与透明通道保留，运行时裁切与定位；首版待机候选仅作为草稿存于开发 artifacts，不参与运行或安装包。

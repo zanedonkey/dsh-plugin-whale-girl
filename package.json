@@ -1,6 +1,6 @@
 {
   "name": "dsh-plugin-whale-girl",
-  "version": "0.5.0",
+  "version": "0.5.5",
   "packageManager": "pnpm@11.7.0",
   "description": "Your whale girl companion for work, wins, and well-earned naps.",
   "icon": "./assets/icon.svg",
