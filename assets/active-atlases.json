@@ -1,0 +1,7 @@
+{
+  "idle": "whale-girl-idle-054.png",
+  "transition": "whale-girl-meal-transition-054.png",
+  "actions": "whale-girl-actions-054.png",
+  "expressions": "whale-girl-expressions-054.png",
+  "eating": "whale-girl-eating-smooth.png"
+}

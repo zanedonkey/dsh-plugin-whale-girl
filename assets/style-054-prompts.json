@@ -1,0 +1,49 @@
+{
+  "mode": "built-in imagegen; reference image edit; transparent_background=true",
+  "master": "whale-girl-eating-smooth.png",
+  "outputs": [
+    {
+      "key": "idle",
+      "file": "whale-girl-idle-054.png",
+      "generatedFile": "exec-02263c5c-a036-4a3f-9b5a-e40c5225d221.png",
+      "references": [
+        "whale-girl-eating-smooth.png",
+        "whale-girl-idle-unified.png"
+      ],
+      "prompt": "Production image edit, style and identity matching. IMAGE 1 is the sole approved character/style master: the rice-eating girl. IMAGE 2 is the 16-cell idle atlas to be edited. Redraw IMAGE 2's rendering with IMAGE 1's exact face design, complex iris highlights, layered blue hair shading, fine navy outline treatment, cream fabric shading, and rounded soft chibi style. Do not simplify the master into flat icon art. Preserve image 2's pose geometry: sixteen standing poses, compact body, head size and position, leg length, skirt, hands, shoes and right whale tail; faces must stay about 85-88 source pixels wide, NOT 95 or larger. Keep its original row/column ordering and expressions: neutral/half blink/closed blink/neutral; glance left/tilt left/return/neutral; glance right/tilt right/return/neutral; start wave/wave/wave/neutral. Every frame is the SAME consistent model with only eyelids, mouth and limbs animated, not a different face. All poses front view except small glances, no bowl or chopsticks in idle. EXACT four-by-four evenly spaced cells on a square 1254-by-1254 transparent canvas. Draw each complete character wholly inside its own cell, about 290 pixels tall, with at least 10 transparent pixels above ahoge and below shoes and 8 on sides; no clipped head, ahoge, tail, or feet and no overlapping neighboring cells. Keep full maid headdress, blue bow, whale fins, full navy and light blue curls, blue eyes, choker, white apron/lace, navy dress/stockings/shoes faithful to master. Preserve true transparency. No text, labels, grid lines, backgrounds, ground shadows or added props. Change only image 2 to match image 1's drawing style. Image 1 stays unchanged. This should look like the very same animator used the very same approved character model for both sheets."
+    },
+    {
+      "key": "transition",
+      "file": "whale-girl-meal-transition-054.png",
+      "generatedFile": "exec-389e968c-d42f-4f64-b55c-0861309803bd.png",
+      "references": [
+        "whale-girl-eating-smooth.png",
+        "whale-girl-idle-054.png",
+        "whale-girl-meal-transition-unified.png"
+      ],
+      "prompt": "Production identity-preserving sprite atlas edit. IMAGE 1 is the approved visual master (rice-eating girl); IMAGE 2 is the matching new standing model; IMAGE 3 is the EDIT TARGET. Edit only image 3's drawing style to match images 1 and 2's exact character identity. Match the master's glossy layered blue irises and multiple eye highlights, round cheeks, fine navy outlines, subtle facial blush, rich blue hair shadows and highlights, navy-to-light-blue gradient curls, soft cream-white fabric, maid outfit construction, whale fins, headdress and blue bow, navy shoes and whale tail curving to viewer right. The same artist, same character model, same head and facial geometry in every cell; do not simplify into flat icon art. Preserve TARGET's individual pose, props, row/column ordering, shoe baseline, character position and sizes. Keep face skin about 85-90 source pixels wide; no larger head, slimmer face, taller body or different outfit. Strict 4x4 evenly spaced cells on a square 1254x1254 RGBA atlas if available. Every character entirely inside its own cell, with transparent space above ahoge and below shoes and at sides. No clipping, overlapping adjacent cells or changing grid. True transparent alpha; no drawn checkerboards, text, labels, captions, separators, ground shadows or additional props. TARGET is the sixteen-frame meal preparation/recovery atlas. Preserve its existing sequence exactly: row 1 neutral standing, bend slightly, stand holding rice bowl and chopsticks, begin squatting; row 2 fully crouched holding bowl, lift rice, rice to mouth, bite; row 3 finish bite, rest bowl, half rise, half rise; row 4 standing holding bowl, lower bowl, hands together closed-eye smile, neutral standing hands together. Neutral faces and standing anatomy match image 2; seated faces and clothing match image 1. Bowl white and plain, brown chopsticks and white rice like master. Do not place rice props in cells that originally have none."
+    },
+    {
+      "key": "actions",
+      "file": "whale-girl-actions-054.png",
+      "generatedFile": "exec-46db1cce-a848-4540-998b-f7ff7367f8b7.png",
+      "references": [
+        "whale-girl-eating-smooth.png",
+        "whale-girl-idle-054.png",
+        "whale-girl-actions-050.png"
+      ],
+      "prompt": "Production identity-preserving sprite atlas edit. IMAGE 1 is the approved visual master (rice-eating girl); IMAGE 2 is the matching new standing model; IMAGE 3 is the EDIT TARGET. Edit only image 3's drawing style to match images 1 and 2's exact character identity. Match the master's glossy layered blue irises and multiple eye highlights, round cheeks, fine navy outlines, subtle facial blush, rich blue hair shadows and highlights, navy-to-light-blue gradient curls, soft cream-white fabric, maid outfit construction, whale fins, headdress and blue bow, navy shoes and whale tail curving to viewer right. The same artist, same character model, same head and facial geometry in every cell; do not simplify into flat icon art. Preserve TARGET's individual pose, props, row/column ordering, shoe baseline, character position and sizes. Keep face skin about 85-90 source pixels wide; no larger head, slimmer face, taller body or different outfit. Strict 4x4 evenly spaced cells on a square 1254x1254 RGBA atlas if available. Every character entirely inside its own cell, with transparent space above ahoge and below shoes and at sides. No clipping, overlapping adjacent cells or changing grid. True transparent alpha; no drawn checkerboards, text, labels, captions, separators, ground shadows or additional props. TARGET is sixteen standing action entrance frames. Keep four rows: row1 neutral hands together, holding closed dark navy laptop, opening laptop, ready to type; row2 neutral, gentle head tilt, relaxed eyelids, happy eyes-closed head-pat pose with hands together; row3 neutral, raise right hand toward chin, thoughtful chin pose, settled waiting-for-confirmation pose; row4 neutral, little excited fists near chest, happy hands spreading outward, both hands up cheering. Preserve props and natural hand motion. Celebration is cheerful; no confetti in the image. Laptop construction identical in all working frames."
+    },
+    {
+      "key": "expressions",
+      "file": "whale-girl-expressions-054.png",
+      "generatedFile": "exec-7feb92f2-d617-447e-b438-b50e8e276c3d.png",
+      "references": [
+        "whale-girl-eating-smooth.png",
+        "whale-girl-idle-054.png",
+        "whale-girl-expressions-050.png"
+      ],
+      "prompt": "Production identity-preserving sprite atlas edit. IMAGE 1 is the approved visual master (rice-eating girl); IMAGE 2 is the matching new standing model; IMAGE 3 is the EDIT TARGET. Edit only image 3's drawing style to match images 1 and 2's exact character identity. Match the master's glossy layered blue irises and multiple eye highlights, round cheeks, fine navy outlines, subtle facial blush, rich blue hair shadows and highlights, navy-to-light-blue gradient curls, soft cream-white fabric, maid outfit construction, whale fins, headdress and blue bow, navy shoes and whale tail curving to viewer right. The same artist, same character model, same head and facial geometry in every cell; do not simplify into flat icon art. Preserve TARGET's individual pose, props, row/column ordering, shoe baseline, character position and sizes. Keep face skin about 85-90 source pixels wide; no larger head, slimmer face, taller body or different outfit. Strict 4x4 evenly spaced cells on a square 1254x1254 RGBA atlas if available. Every character entirely inside its own cell, with transparent space above ahoge and below shoes and at sides. No clipping, overlapping adjacent cells or changing grid. True transparent alpha; no drawn checkerboards, text, labels, captions, separators, ground shadows or additional props. TARGET is sixteen expression/loop frames. Preserve four rows: row1 neutral, small worried fists, hands clasped with concerned eyelids, worried hands clasped; row2 neutral standing, drowsy eyelids, halfway lower to sit, fully seated asleep with legs folded and hands in lap; row3 four laptop typing poses: slight hand changes and final smiling blink; row4 four head-pat reaction poses: eyes-closed happy smile, relaxed open eyelids smile, happy closed eyelids smile, cheerful open eyes, hands together throughout. Do not introduce a human hand touching her head, hearts or text into the atlas. Skin, eye highlights and hair rendering match master precisely; sleep and worry change expression only. Keep standing and seated proportions coherent and whole feet visible."
+    }
+  ]
+}
