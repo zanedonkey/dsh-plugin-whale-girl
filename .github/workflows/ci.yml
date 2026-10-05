@@ -1,0 +1,88 @@
+name: Build, test and package
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref_type != 'tag' }}
+
+jobs:
+  verify:
+    name: ${{ matrix.os }} / Node ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            node: 22
+          - os: windows-latest
+            node: 22
+          - os: ubuntu-latest
+            node: 24
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - name: Ensure committed bundles match source
+        run: git diff --exit-code -- lib preview
+      - run: npm test
+      - name: Offline browser regression
+        if: matrix.os == 'ubuntu-latest' && matrix.node == 22
+        shell: bash
+        run: |
+          export CHROME_PATH="$(command -v google-chrome || command -v chromium)"
+          npm run test:browser
+      - run: npm run pack:checked
+      - name: Upload checked installation package
+        if: matrix.os == 'ubuntu-latest' && matrix.node == 22
+        uses: actions/upload-artifact@v7
+        with:
+          name: installation-package
+          path: |
+            artifacts/*.tgz
+            artifacts/*.tgz.sha256
+            artifacts/package-report.json
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+
+  release:
+    name: Attach verified package to release
+    if: github.event_name == 'push' && github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: installation-package
+          path: artifacts
+      - name: Verify checksum and publish package
+        shell: bash
+        working-directory: artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          sha256sum --check *.tgz.sha256
+          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" --verify-tag --generate-notes --title "$RELEASE_TAG"
+          fi
+          gh release upload "$RELEASE_TAG" *.tgz *.tgz.sha256 --clobber

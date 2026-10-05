@@ -2869,21 +2869,36 @@ class WhaleWidget {
   paint() {
     if (this.disposed) return;
     const view = this.machine.view(this.now());
-    this.pet.dataset.state = view.state;
+    if (this.pet.dataset.state !== view.state) this.pet.dataset.state = view.state;
     this.renderAnimation();
-    this.pet.dataset.notice = String(Boolean(this.interaction || view.noticeKey || ['waiting', 'celebrate', 'error'].includes(view.state) || view.greeting));
-    this.pet.dataset.touch = String(Boolean(view.greeting && !view.noticeKey && !['waiting', 'working', 'celebrate', 'error'].includes(view.state)));
+    const notice = String(Boolean(this.interaction || view.noticeKey || ['waiting', 'celebrate', 'error'].includes(view.state) || view.greeting));
+    const touch = String(Boolean(view.greeting && !view.noticeKey && !['waiting', 'working', 'celebrate', 'error'].includes(view.state)));
+    if (this.pet.dataset.notice !== notice) this.pet.dataset.notice = notice;
+    if (this.pet.dataset.touch !== touch) this.pet.dataset.touch = touch;
     const count = view.state === 'working' && Number.isFinite(view.workingCount) ? Math.max(0, Math.floor(view.workingCount)) : 0;
-    this.countOverlay.toggleAttribute('hidden', count === 0);
-    this.countText.textContent = count > 0 ? (count > 99 ? '99+' : String(count)) : '';
+    if (this.lastPaintCount !== count) {
+      this.lastPaintCount = count;
+      this.countOverlay.toggleAttribute('hidden', count === 0);
+      this.countText.textContent = count > 0 ? (count > 99 ? '99+' : String(count)) : '';
+    }
     const messageKey = this.interaction?.messageKey || view.noticeKey || (view.greeting && view.state === 'resting' ? 'pet.greeting' : view.messageKey);
     const message = translate(this.language, messageKey);
-    this.bubbleText.textContent = message;
-    this.positionBubble();
+    // Keep the clock tick for sleep/notice deadlines, but avoid replacing text
+    // nodes and reading layout when the visible message has not changed.
+    // Resize, dragging, font/image load and ResizeObserver position separately.
+    if (this.lastPaintMessage !== message) {
+      this.lastPaintMessage = message;
+      this.bubbleText.textContent = message;
+      this.positionBubble();
+    }
     // The decorative screen number is announced once, with its actual count,
     // as part of the button label, and never leaks into resting greetings.
     const status = count > 0 ? `${message} ${translate(this.language, count === 1 ? 'pet.workingCountOne' : 'pet.workingCount', { count })}` : message;
-    this.button.setAttribute('aria-label', translate(this.language, 'pet.aria', { status }));
+    const label = translate(this.language, 'pet.aria', { status });
+    if (this.lastPaintLabel !== label) {
+      this.lastPaintLabel = label;
+      this.button.setAttribute('aria-label', label);
+    }
     this.onView(view);
   }
   dispose() {

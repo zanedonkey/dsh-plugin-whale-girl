@@ -18,7 +18,7 @@ test('package is a self-contained DSH bundle with only its own inserted row', ()
   for (const hook of ['preinstall', 'install', 'postinstall', 'prepare', 'prepack', 'postpack']) {
     assert.equal(manifest.scripts[hook], undefined);
   }
-  assert.equal(manifest.version, '0.5.5');
+  assert.equal(manifest.version, '0.5.6');
   assert.equal(fs.existsSync(path.join(root, 'lib/version.js')), false);
   assert.equal(manifest.files.includes('DIAGNOSTICS.md'), false);
   assert.equal(manifest.private, true);
@@ -26,7 +26,7 @@ test('package is a self-contained DSH bundle with only its own inserted row', ()
   assert.equal(manifest.engines.node, '>=22');
   assert.equal(manifest.scripts.build, 'node tools/bridge-build.mjs && node tools/build.mjs');
   assert.equal(manifest.scripts.test, 'node --test tests/*.test.mjs');
-  assert.equal(manifest.scripts['test:browser'], undefined);
+  assert.equal(manifest.scripts['test:browser'], 'node tools/release-browser-check.mjs');
   assert.ok(manifest.files.includes('ASSETS-LICENSE.md'));
   assert.doesNotMatch(read('tools/bridge-build.mjs'), /WHALE_BRIDGE_DEPS|\/Users\/|dsh-pet-research/);
 });
@@ -119,6 +119,6 @@ test('manifest icon is a shippable, inert, package-relative SVG within DSH limit
   assert.doesNotMatch(svg.replace(/xmlns="http:\/\/www\.w3\.org\/2000\/svg"/g, ''), /https?:\/\//);
   const tags = [...svg.matchAll(/<\/?([a-zA-Z][\w:-]*)\b/g)].map(match => match[1]);
   assert.deepEqual([...new Set(tags)].sort(), ['path', 'svg']);
-  // assets/ is published, so the icon travels with the package.
-  assert.ok(manifest.files.includes('assets'));
+  assert.ok(manifest.files.includes(icon.replace(/^\.\//, '')));
+  assert.equal(manifest.files.includes('assets'), false, 'raw and historical artwork stays in the repository');
 });

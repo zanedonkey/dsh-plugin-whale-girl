@@ -92,6 +92,64 @@ function fixture(t, language = 'en', now = () => 1000) {
   return { widget, document, window, saved, scopes, frameCallbacks, tickFrame };
 }
 
+test('unchanged clock ticks preserve text nodes and skip bubble layout while animation advances', t => {
+  let now = 1000;
+  const { widget: w } = fixture(t, 'en', () => now);
+  let layouts = 0, textWrites = 0, labelWrites = 0;
+  const position = w.positionBubble.bind(w);
+  w.positionBubble = () => { layouts++; position(); };
+  let message = w.bubbleText.textContent;
+  Object.defineProperty(w.bubbleText, 'textContent', { get: () => message, set: value => { textWrites++; message = value; } });
+  const attribute = w.button.setAttribute.bind(w.button);
+  w.button.setAttribute = (key, value) => { if (key === 'aria-label') labelWrites++; attribute(key, value); };
+  w.assets.animation = 'animation.png';
+  w.renderAnimation();
+  const firstFrame = w.pet.dataset.frame;
+  for (let i = 0; i < 10; i++) { now += 500; w.paint(); }
+  assert.equal(layouts, 0);
+  assert.equal(textWrites, 0);
+  assert.equal(labelWrites, 0);
+  assert.notEqual(w.pet.dataset.frame, firstFrame);
+  w.update({ sessionId: 'a', available: true, running: true, workingCount: 1 });
+  assert.equal(textWrites, 1); assert.equal(layouts, 1);
+  const workingMessage = w.bubbleText.textContent;
+  w.update({ sessionId: 'a', available: true, running: true, workingCount: 3 });
+  assert.equal(w.bubbleText.textContent, workingMessage);
+  assert.equal(w.countText.textContent, '3');
+  assert.equal(textWrites, 1); assert.equal(layouts, 1);
+  assert.match(w.button.getAttribute('aria-label'), /3/);
+  w.setLanguage('zh');
+  assert.equal(textWrites, 2); assert.equal(layouts, 2);
+  w.preferences.scale = 1.6; w.applyPreferences();
+  assert.equal(layouts, 3);
+});
+
+test('cached rendering still updates sleep, wake and completion expiration', t => {
+  let now = 1000;
+  const { widget: w, window } = fixture(t, 'en', () => now);
+  w.update({ sessionId: 'a', available: true, running: false });
+  now += w.preferences.sleepAfterMs; w.paint();
+  assert.equal(w.pet.dataset.state, 'sleeping');
+  assert.equal(w.bubbleText.textContent, MESSAGES.en['state.sleeping']);
+  w.interact('headpat');
+  assert.equal(w.pet.dataset.state, 'resting');
+  assert.equal(w.bubbleText.textContent, translate('en', w.interaction.messageKey));
+  w.update({ sessionId: 'a', available: true, running: true, runId: 'r' });
+  w.update({ sessionId: 'a', available: true, running: false, runId: 'r', outcome: { id: 'done', reason: 'completed' } });
+  assert.equal(w.pet.dataset.state, 'celebrate');
+  now += 10000; w.paint();
+  assert.equal(w.pet.dataset.state, 'resting');
+  assert.equal(w.bubbleText.textContent, MESSAGES.en['state.resting']);
+  let layouts = 0; const position = w.positionBubble.bind(w);
+  w.positionBubble = () => { layouts++; position(); };
+  window.innerWidth = 360; window.dispatch('resize');
+  assert.equal(layouts, 1);
+  w.preferences.hidden = true; w.applyPreferences();
+  w.restore.dispatch('click');
+  assert.equal(w.pet.hidden, false);
+  assert.ok(layouts >= 3);
+});
+
 test('formal widget has no diagnostic/test controls, collectors, clipboard or telemetry paths', () => {
   assert.doesNotMatch(source, /diagnostic|clipboard|execCommand|permissions\.query|telemetry|data-action|test-button|<textarea/i);
   assert.doesNotMatch(css, /diagnostic|textarea/i);
