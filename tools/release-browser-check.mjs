@@ -76,6 +76,14 @@ try {
   }
   assert.equal(await evaluate(`document.fonts.check('400 15px "Whale Bubble Han"')&&document.fonts.check('500 15px "Whale Bubble Latin"')`),true);
   await evaluate(`Promise.all(Array.from(document.images, image => image.decode()))`);
+  const idleRefresh = await evaluate(`(()=>{
+    const w=previewPet,position=w.positionBubble,observer=new MutationObserver(()=>{});
+    let layouts=0; w.positionBubble=function(){layouts++;return position.call(this)};
+    observer.observe(w.bubbleText,{childList:true,characterData:true,subtree:true});
+    try { for(let i=0;i<20;i++)w.paint();return {layouts,textMutations:observer.takeRecords().length}; }
+    finally { observer.disconnect();w.positionBubble=position; }
+  })()`);
+  assert.deepEqual(idleRefresh, { layouts: 0, textMutations: 0 }, 'Unchanged ticks must skip bubble layout and text replacement');
   const layout = await page('Page.getLayoutMetrics');
   const overview = await page('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true,
     clip: { x: 0, y: 0, width: layout.cssContentSize.width, height: layout.cssContentSize.height, scale: 1 } });

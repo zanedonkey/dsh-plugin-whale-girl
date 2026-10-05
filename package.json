@@ -1,6 +1,6 @@
 {
   "name": "dsh-plugin-whale-girl",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "packageManager": "pnpm@11.7.0",
   "description": "Your whale girl companion for work, wins, and well-earned naps.",
   "icon": "./assets/icon.svg",
@@ -19,7 +19,11 @@
   },
   "files": [
     "lib",
-    "assets",
+    "assets/icon.svg",
+    "assets/fonts/bubble-en.woff2",
+    "assets/fonts/bubble-zh.woff2",
+    "assets/fonts/OFL-Fredoka.txt",
+    "assets/fonts/OFL-ZCOOL-KuaiLe.txt",
     "locale",
     "cordis.patch.yml",
     "README.md",
@@ -31,7 +35,9 @@
   "scripts": {
     "build": "node tools/bridge-build.mjs && node tools/build.mjs",
     "build:bridge": "node tools/bridge-build.mjs",
-    "test": "node --test tests/*.test.mjs"
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "node tools/release-browser-check.mjs",
+    "pack:checked": "node tools/pack.mjs"
   },
   "devDependencies": {
     "esbuild": "0.25.12",

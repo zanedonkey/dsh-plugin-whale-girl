@@ -7,12 +7,12 @@
 
 ## 安装
 
-从 [GitHub Releases](https://github.com/zanedonkey/dsh-plugin-whale-girl/releases/latest) 下载 `dsh-plugin-whale-girl-0.5.5.tgz`，保存到本机。
+从 [GitHub Releases](https://github.com/zanedonkey/dsh-plugin-whale-girl/releases/latest) 下载安装包，保存到本机。0.5.6 的文件名为 `dsh-plugin-whale-girl-0.5.6.tgz`；新版本发布前可在对应 [Actions](https://github.com/zanedonkey/dsh-plugin-whale-girl/actions) 验证运行中下载 `installation-package`。
 
 在 DSH 的 **插件 → 添加插件** 中输入下载文件的绝对路径。例如：
 
 ```text
-D:\下载\dsh-plugin-whale-girl-0.5.5.tgz
+D:\下载\dsh-plugin-whale-girl-0.5.6.tgz
 ```
 
 安装后启用“鲸鱼娘”。涉及 Host 桥接的首次安装／升级，请等当前任务结束，完整退出 DSH 再重新打开。
@@ -69,8 +69,19 @@ Node.js 22+：
 npm ci --ignore-scripts
 npm run build
 npm test
-npm pack --ignore-scripts --pack-destination artifacts
+npm run pack:checked
 ```
+
+`pack:checked` 在 `artifacts/` 生成安装包、同名 `.sha256` 校验文件和 `package-report.json`，检查全部发布文件、导出入口与体积上限。安装包只包含预编译运行代码、图标、语言资源、内嵌字体的原始文件及授权文档；原始 PNG、参考图和历史图集保留在源码仓库，不重复打包。0.5.6 安装包约 14.7 MB，解包约 19.8 MB；仍可完全离线运行。
+
+浏览器回归检查需要独立的 Chrome/Chromium 可执行文件路径：
+
+```powershell
+$env:CHROME_PATH = 'C:\Program Files\Google\Chrome\Application\chrome.exe'
+npm run test:browser
+```
+
+GitHub Actions 在 push、pull request 和手动触发时，检查 Windows / Node 22、Linux / Node 22 和 Linux / Node 24 的构建、测试及打包内容，并检查提交的 `lib/` 与 `preview/` 是否与源码一致。Linux / Node 22 另运行隔离的离线浏览器检查。发布匹配 `package.json` 版本的 `v` 标签（例如 `v0.5.6`）时，全部检查通过后自动创建或更新 GitHub Release，上传安装包及 SHA-256 校验文件；不发布到 npm。
 
 修改 `src/` 后重新构建。`assets/whale-girl-atlas.png` 和 `assets/whale-girl-animation.png` 为历史素材与兼容回退；`src/sprites.js` 定义历史静态裁切。
 `assets/active-atlases.json` 集中指定当前五张图集：四张 `*-054.png` 保存重绘的待机、过渡、动作与表情，`whale-girl-eating-smooth.png` 保存已批准的 16 帧吃饭图。旧图保留作历史记录，不参与完整动作模式的播放。生成提示词见 `assets/style-054-prompts.json`。
@@ -81,11 +92,13 @@ npm pack --ignore-scripts --pack-destination artifacts
 
 ## 验证范围
 
-已通过构建、286 项自动测试和离线浏览器检查。测试覆盖真实代码中的事件过滤、重连、
+已通过构建、288 项自动测试和离线浏览器检查。测试覆盖真实代码中的事件过滤、重连、
 并行会话、取消、设置、拖动、键盘操作与卸载，以及长按阈值、取消、互动优先级、
 动画帧切换、单一刷新回调、隐藏／拖动／卸载停止刷新和减少动画设置。浏览器检查使用真实鼠标按压验证长按、单击吃饭、16 帧循环、单张不透明绘制、固定脚底坐标、准备／收尾、重复点击不重启和屏幕同步刷新；八种动作间的 56 种有向切换均通过浏览器检查，自动测试另覆盖连续打断与反向切换。
 已在本机 DSH 实际检查 0.5.2 的吃饭、摸头快捷键、拖动、大小调整和自然休眠。0.5.3 修复设置面板遮挡；0.5.4 重绘四组角色素材；0.5.5 修复端碗阶段突然缩小，新增实际 PNG 轮廓检查。新版通过离线验证，尚未安装到真实 DSH。
 DSH 处于开发预览阶段，接口后续可能变化；参考框架最初面向 Desktop 0.1.6-alpha.2。
+
+0.5.6 保留动画与任务状态的检查时序，仅在内容变化时更新台词、工作数量和辅助朗读标签；气泡在文字、位置、窗口、尺寸、字体或图片加载变化时重新定位。新增测试覆盖缓存后的休眠、唤醒、完成提示过期、语言切换和窗口调整。已通过隔离浏览器检查，尚未安装到真实 DSH。
 
 代码保留上游 MIT 版权声明，见 `LICENSE`；角色与参考图说明见 `ASSETS-LICENSE.md`，
 字体授权见 `FONT-LICENSES.md`。素材生成记录与提示词见 `assets/GENERATION.md`。

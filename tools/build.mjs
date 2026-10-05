@@ -2,7 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const read = p => fs.readFileSync(path.join(root, p), 'utf8');
+// Windows checkouts can contain CRLF; the bundler's line patterns expect LF.
+const read = p => fs.readFileSync(path.join(root, p), 'utf8').replace(/\r\n?/g, '\n');
 const { version } = JSON.parse(read('package.json'));
 const activeAtlases = JSON.parse(read('assets/active-atlases.json'));
 // Independently authored geometric preview stand-in, not copied from DSH artwork.
